@@ -300,49 +300,34 @@ public class CmNB3Algorithm extends NB3Algorithm{
 	}
 
 	
-
-	
-	
-	
-	//METHODS TO CALCULATE THE NODE BOUNDS.
 	@Override
 	public float calculateUpperBound(int agentID, List<NB3Node> branch, NB3WorldState ws) {
-		
-		//We can calculate the upper bound of any agent by assuming that all other agents will give everything they
-		// own to the given agent.
-		
-		//However, if the given agent already has supplied a certain commodity, then it doesn't make sense to also consume it in the same deal.
-		//Therefore, we can ignore such transactions to refine the upper bound.
-		
-		
-		//Make a copy of the current state and get the commodities currently owned by the agent.
-		CommodityAssets maximalAssets = ((CmWorldState)ws).commodityAssets.copy();
-		
-		// Let all other agents give their assets to the current agent, except when the current agent has already acted
-		// as a supplier for a certain commodity in the branch.
-		for(int otherAgentID = 0; otherAgentID<maximalAssets.NUM_AGENTS; otherAgentID++){
-			
-			if(otherAgentID == agentID){
+		// Copia del estado actual y los activos máximos del agente.
+		CommodityAssets maximalAssets = ((CmWorldState) ws).commodityAssets.copy();
+	
+		// Recorre todos los agentes, excepto el actual.
+		for (int otherAgentID = 0; otherAgentID < maximalAssets.NUM_AGENTS; otherAgentID++) {
+			if (otherAgentID == agentID) {
 				continue;
 			}
-			
-			for(int commodity=0; commodity<maximalAssets.NUM_COMMODITIES; commodity++){
-				
-				if( ! hasSupplied(agentID, commodity, branch) ){ //check if the given agent appears as a supplier of this commodity in the given branch.
-					
-					int quantity = maximalAssets.getAssets(agentID, commodity) + maximalAssets.getAssets(otherAgentID, commodity);
-					
-					maximalAssets.setAssets(agentID, commodity, quantity);
+	
+			for (int commodity = 0; commodity < maximalAssets.NUM_COMMODITIES; commodity++) {
+				// Verificar si el agente ya es proveedor de esta mercancía.
+				if (!hasSupplied(agentID, commodity, branch)) {
+					// Verificar si el agente receptor ya ha actuado como consumidor.
+					if (!hasConsumed(agentID, commodity, branch)) {
+						// Combinar activos del otro agente con los del agente actual.
+						int quantity = maximalAssets.getAssets(agentID, commodity) +
+									   maximalAssets.getAssets(otherAgentID, commodity);
+						maximalAssets.setAssets(agentID, commodity, quantity);
+					}
 				}
 			}
 		}
-
-		//calculate the utility value of the given agent when it has received all assets of all other agents
-		//and return this value as the upper bound.
-		int val = this.theAgent.preferenceProfile.calculateValue(agentID, maximalAssets);
-		
-		return val;
-		
+	
+		// Calcular el valor de utilidad basado en los activos combinados.
+		int value = this.theAgent.preferenceProfile.calculateValue(agentID, maximalAssets);
+		return value;
 	}
 	
 	
