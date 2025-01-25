@@ -1,4 +1,4 @@
-package commodityMarket.agent;
+package commodityMarket.AgentMiguel;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

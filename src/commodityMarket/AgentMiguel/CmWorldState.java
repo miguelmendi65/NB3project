@@ -1,4 +1,4 @@
-package commodityMarket.agent;
+package commodityMarket.AgentMiguel;
 
 import java.util.List;
 

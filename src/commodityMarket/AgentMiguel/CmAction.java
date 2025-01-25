@@ -1,4 +1,4 @@
-package commodityMarket.agent;
+package commodityMarket.AgentMiguel;
 
 
 import commodityMarket.domain.CommodityTransaction;

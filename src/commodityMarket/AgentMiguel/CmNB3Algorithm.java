@@ -1,4 +1,4 @@
-package commodityMarket.agent;
+package commodityMarket.AgentMiguel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -308,28 +308,24 @@ public class CmNB3Algorithm extends NB3Algorithm{
 		// Recorre todos los agentes, excepto el actual.
 		for (int otherAgentID = 0; otherAgentID < maximalAssets.NUM_AGENTS; otherAgentID++) {
 			if (otherAgentID == agentID) {
-				continue;
+				continue; // Evita combinar activos del agente consigo mismo.
 			}
 	
 			for (int commodity = 0; commodity < maximalAssets.NUM_COMMODITIES; commodity++) {
-				// Verificar si el agente ya es proveedor de esta mercancía.
-				if (!hasSupplied(agentID, commodity, branch)) {
-					// Verificar si el agente receptor ya ha actuado como consumidor.
-					if (!hasConsumed(agentID, commodity, branch)) {
-						// Combinar activos del otro agente con los del agente actual.
-						int quantity = maximalAssets.getAssets(agentID, commodity) +
-									   maximalAssets.getAssets(otherAgentID, commodity);
-						maximalAssets.setAssets(agentID, commodity, quantity);
-					}
+				// Verifica si el agente objetivo ya ha suministrado o consumido esta mercancía.
+				if (!hasSupplied(agentID, commodity, branch) && !hasConsumed(agentID, commodity, branch)) {
+					// Combina activos del agente actual con los de otro agente.
+					int quantity = maximalAssets.getAssets(agentID, commodity) +
+								   maximalAssets.getAssets(otherAgentID, commodity);
+					maximalAssets.setAssets(agentID, commodity, quantity);
 				}
 			}
 		}
 	
-		// Calcular el valor de utilidad basado en los activos combinados.
-		int value = this.theAgent.preferenceProfile.calculateValue(agentID, maximalAssets);
-		return value;
+		// Calcula el valor de utilidad basado en los activos combinados.
+		return this.theAgent.preferenceProfile.calculateValue(agentID, maximalAssets);
 	}
-	
+		
 	
 	@Override
 	public float calculateIntermediateValue(int agentID, List<NB3Node> branch, NB3WorldState ws){
